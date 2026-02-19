@@ -1,0 +1,109 @@
+{% extends "admin/base.html" %}
+{% block title %}Certificates{% endblock %}
+{% block page_title %}Certificates{% endblock %}
+
+{% block content %}
+<!-- Add Form -->
+<div class="card" style="margin-bottom:1.5rem;">
+  <div class="card-header"><span class="card-title"><i class="fas fa-plus" style="margin-right:.5rem;color:var(--accent)"></i>Add New Certificate</span></div>
+  <div class="card-body">
+    <form method="POST" action="{{ url_for('admin_certificates_add') }}" enctype="multipart/form-data">
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Certificate Title *</label>
+          <input class="form-control" type="text" name="title" placeholder="AWS Certified Developer" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Issuing Organization</label>
+          <input class="form-control" type="text" name="issuer" placeholder="Amazon Web Services / Coursera">
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Issue Date</label>
+          <input class="form-control" type="text" name="date" placeholder="January 2024">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <input class="form-control" type="text" name="category" placeholder="Cloud, ML, Web Dev...">
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Credential ID</label>
+          <input class="form-control" type="text" name="credential_id" placeholder="AWS-DEV-12345">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Verification URL</label>
+          <input class="form-control" type="url" name="credential_url" placeholder="https://verify.link/cert/...">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Certificate Image</label>
+        <input class="form-control" type="file" name="image" accept="image/*,application/pdf" onchange="previewImg(this,'certPrev')">
+        <p class="form-hint">Upload JPG, PNG of your certificate — Max 10MB</p>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+        <img id="certPrev" style="display:none;height:80px;border-radius:8px;border:1px solid var(--border);">
+        <button class="btn btn-primary" type="submit"><i class="fas fa-plus"></i> Add Certificate</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Certificates Grid -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-title"><i class="fas fa-certificate" style="margin-right:.5rem;color:var(--accent)"></i>All Certificates</span>
+    <span class="badge badge-accent">{{ certs|length }}</span>
+  </div>
+  {% if certs %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Image</th><th>Title</th><th>Issuer</th><th>Date</th><th>Category</th><th>Credential</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for cert in certs %}
+        <tr>
+          <td>
+            {% if cert.image %}
+            <img class="thumb" src="{{ url_for('static', filename=cert.image) }}" alt="" style="cursor:pointer" onclick="openLightbox('{{ url_for('static', filename=cert.image) }}')">
+            {% else %}
+            <div class="table-img-ph" style="width:60px;height:60px"><i class="fas fa-certificate"></i></div>
+            {% endif %}
+          </td>
+          <td><strong>{{ cert.title }}</strong></td>
+          <td style="color:var(--text-muted);font-size:.88rem">{{ cert.issuer or '—' }}</td>
+          <td style="font-size:.82rem;white-space:nowrap">{{ cert.date or '—' }}</td>
+          <td>{% if cert.category %}<span class="badge badge-blue">{{ cert.category }}</span>{% endif %}</td>
+          <td>
+            {% if cert.credential_id %}<div style="font-size:.78rem;font-family:monospace;color:var(--text-muted)">{{ cert.credential_id }}</div>{% endif %}
+            {% if cert.credential_url %}<a href="{{ cert.credential_url }}" target="_blank" class="btn btn-outline btn-sm" style="margin-top:.3rem"><i class="fas fa-external-link-alt"></i> Verify</a>{% endif %}
+          </td>
+          <td>
+            <a href="{{ url_for('admin_certificates_delete', id=cert.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this certificate?')"><i class="fas fa-trash"></i></a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card-body" style="text-align:center;padding:3rem;color:var(--text-muted)">
+    <i class="fas fa-certificate" style="font-size:3rem;opacity:.3;margin-bottom:1rem;display:block"></i>
+    <p>No certificates yet. Add your first certificate above.</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.9);align-items:center;justify-content:center;" onclick="this.style.display='none'">
+  <img id="lbImg" style="max-width:90vw;max-height:90vh;border-radius:8px;object-fit:contain;">
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImg(input,id){const f=input.files[0];if(f){const r=new FileReader();r.onload=e=>{const p=document.getElementById(id);p.src=e.target.result;p.style.display='block';};r.readAsDataURL(f);}}
+function openLightbox(src){const lb=document.getElementById('lightbox');document.getElementById('lbImg').src=src;lb.style.display='flex';}
+</script>
+{% endblock %}

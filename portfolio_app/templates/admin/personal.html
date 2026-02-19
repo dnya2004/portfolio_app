@@ -1,0 +1,125 @@
+{% extends "admin/base.html" %}
+{% block title %}Personal Info{% endblock %}
+{% block page_title %}Personal Information{% endblock %}
+
+{% block content %}
+<form method="POST" enctype="multipart/form-data">
+  <div style="display:grid;grid-template-columns:1fr 320px;gap:1.5rem;align-items:start;">
+
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+      <!-- Basic Info -->
+      <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fas fa-user" style="margin-right:.5rem;color:var(--accent)"></i>Basic Information</span></div>
+        <div class="card-body">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Full Name *</label>
+              <input class="form-control" type="text" name="name" value="{{ student.name if student }}" placeholder="John Doe" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tagline / Title</label>
+              <input class="form-control" type="text" name="tagline" value="{{ student.tagline if student }}" placeholder="Full Stack Developer & Designer">
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input class="form-control" type="email" name="email" value="{{ student.email if student }}" placeholder="john@example.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input class="form-control" type="text" name="phone" value="{{ student.phone if student }}" placeholder="+91 98765 43210">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Location</label>
+            <input class="form-control" type="text" name="location" value="{{ student.location if student }}" placeholder="Mumbai, India">
+          </div>
+          <div class="form-group">
+            <label class="form-label">About Me</label>
+            <textarea class="form-control" name="about" rows="5" placeholder="Write a short bio about yourself...">{{ student.about if student }}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Social Links -->
+      <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fas fa-share-alt" style="margin-right:.5rem;color:var(--accent)"></i>Social Links</span></div>
+        <div class="card-body">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label"><i class="fab fa-github" style="margin-right:.4rem"></i>GitHub</label>
+              <input class="form-control" type="url" name="github" value="{{ student.github if student }}" placeholder="https://github.com/username">
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fab fa-linkedin-in" style="margin-right:.4rem"></i>LinkedIn</label>
+              <input class="form-control" type="url" name="linkedin" value="{{ student.linkedin if student }}" placeholder="https://linkedin.com/in/username">
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fab fa-twitter" style="margin-right:.4rem"></i>Twitter</label>
+              <input class="form-control" type="url" name="twitter" value="{{ student.twitter if student }}" placeholder="https://twitter.com/username">
+            </div>
+            <div class="form-group">
+              <label class="form-label"><i class="fas fa-globe" style="margin-right:.4rem"></i>Website</label>
+              <input class="form-control" type="url" name="website" value="{{ student.website if student }}" placeholder="https://yourwebsite.com">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skills -->
+      <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fas fa-tools" style="margin-right:.5rem;color:var(--accent)"></i>Skills</span></div>
+        <div class="card-body">
+          <div class="form-group">
+            <label class="form-label">Skills (comma separated)</label>
+            <textarea class="form-control" name="skills" rows="3" placeholder="Python, Flask, React, JavaScript, SQL, Machine Learning, ...">{% if student and student.skills %}{{ student.skills | replace('[', '') | replace(']', '') | replace('"', '') | replace("'", '') | trim }}{% endif %}</textarea>
+            <p class="form-hint">Enter skills separated by commas. Example: Python, Flask, React, HTML/CSS</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+      <div class="card">
+        <div class="card-header"><span class="card-title"><i class="fas fa-image" style="margin-right:.5rem;color:var(--accent)"></i>Profile Photo</span></div>
+        <div class="card-body" style="text-align:center;">
+          {% if student and student.profile_image %}
+          <img src="{{ url_for('static', filename=student.profile_image) }}" style="width:140px;height:140px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);margin-bottom:1rem;">
+          {% else %}
+          <div style="width:140px;height:140px;border-radius:50%;background:var(--surface2);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:3rem;color:var(--border);margin:0 auto 1rem;"><i class="fas fa-user"></i></div>
+          {% endif %}
+          <div class="form-group">
+            <label class="form-label">Upload Photo</label>
+            <input class="form-control" type="file" name="profile_image" accept="image/*" onchange="previewImg(this,'profilePrev')">
+            <p class="form-hint">JPG, PNG, WebP — Max 5MB</p>
+          </div>
+          <img id="profilePrev" style="display:none;width:100px;height:100px;border-radius:50%;object-fit:cover;margin:0 auto;border:2px solid var(--accent)">
+        </div>
+      </div>
+      <button class="btn btn-primary" type="submit" style="width:100%;justify-content:center;padding:1rem;font-size:1rem;">
+        <i class="fas fa-save"></i> Save Changes
+      </button>
+      <a href="{{ url_for('index') }}" target="_blank" class="btn btn-outline" style="width:100%;justify-content:center;"><i class="fas fa-eye"></i> Preview</a>
+    </div>
+  </div>
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImg(input, previewId){
+  const f=input.files[0];
+  if(f){const r=new FileReader();r.onload=e=>{const p=document.getElementById(previewId);p.src=e.target.result;p.style.display='block';};r.readAsDataURL(f);}
+}
+
+// Skills tag UI
+const ta=document.querySelector('textarea[name="skills"]');
+if(ta){
+  ta.addEventListener('input',updateTags);
+  function updateTags(){}
+}
+</script>
+{% endblock %}

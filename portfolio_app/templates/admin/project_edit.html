@@ -1,0 +1,64 @@
+{% extends "admin/base.html" %}
+{% block title %}Edit Project{% endblock %}
+{% block page_title %}Edit Project{% endblock %}
+
+{% block content %}
+<div style="max-width:800px;margin:0 auto;">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title"><i class="fas fa-edit" style="margin-right:.5rem;color:var(--accent)"></i>Edit: {{ proj.title }}</span>
+      <a href="{{ url_for('admin_projects') }}" class="btn btn-outline btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+    </div>
+    <div class="card-body">
+      <form method="POST" enctype="multipart/form-data">
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Project Title *</label>
+            <input class="form-control" type="text" name="title" value="{{ proj.title }}" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <input class="form-control" type="text" name="category" value="{{ proj.category or '' }}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" name="description" rows="4">{{ proj.description or '' }}</textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tech Stack (comma separated)</label>
+          <input class="form-control" type="text" name="tech_stack" value="{{ proj.tech_stack or '' }}">
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">GitHub Link</label>
+            <input class="form-control" type="url" name="github_link" value="{{ proj.github_link or '' }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Live Demo Link</label>
+            <input class="form-control" type="url" name="live_link" value="{{ proj.live_link or '' }}">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Project Image</label>
+          {% if proj.image %}
+          <div style="margin-bottom:.75rem"><img src="{{ url_for('static', filename=proj.image) }}" style="height:100px;border-radius:10px;border:1px solid var(--border);object-fit:cover;"></div>
+          {% endif %}
+          <input class="form-control" type="file" name="image" accept="image/*">
+          <p class="form-hint">Leave blank to keep existing image</p>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+          <label class="form-check">
+            <input type="checkbox" name="featured" {% if proj.featured %}checked{% endif %}>
+            <span><i class="fas fa-star" style="color:var(--accent);margin-right:.3rem"></i>Featured Project</span>
+          </label>
+          <div style="display:flex;gap:.75rem;">
+            <a href="{{ url_for('admin_projects') }}" class="btn btn-outline">Cancel</a>
+            <button class="btn btn-primary" type="submit"><i class="fas fa-save"></i> Save Changes</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

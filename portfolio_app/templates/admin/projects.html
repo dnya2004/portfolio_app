@@ -1,0 +1,102 @@
+{% extends "admin/base.html" %}
+{% block title %}Projects{% endblock %}
+{% block page_title %}Projects{% endblock %}
+
+{% block content %}
+<!-- Add Form -->
+<div class="card" style="margin-bottom:1.5rem;">
+  <div class="card-header"><span class="card-title"><i class="fas fa-plus" style="margin-right:.5rem;color:var(--accent)"></i>Add New Project</span></div>
+  <div class="card-body">
+    <form method="POST" action="{{ url_for('admin_projects_add') }}" enctype="multipart/form-data">
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Project Title *</label>
+          <input class="form-control" type="text" name="title" placeholder="My Awesome Project" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <input class="form-control" type="text" name="category" placeholder="Web App, ML, Mobile...">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" name="description" rows="3" placeholder="What does this project do? What problem does it solve?"></textarea>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Tech Stack</label>
+          <input class="form-control" type="text" name="tech_stack" placeholder="Python, Flask, React, MySQL">
+          <p class="form-hint">Comma separated</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Project Image</label>
+          <input class="form-control" type="file" name="image" accept="image/*" onchange="previewImg(this,'projPrev')">
+        </div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">GitHub Link</label>
+          <input class="form-control" type="url" name="github_link" placeholder="https://github.com/user/repo">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Live Demo Link</label>
+          <input class="form-control" type="url" name="live_link" placeholder="https://myproject.com">
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+        <label class="form-check">
+          <input type="checkbox" name="featured">
+          <span style="font-size:.9rem;font-weight:500"><i class="fas fa-star" style="color:var(--accent);margin-right:.3rem"></i> Mark as Featured</span>
+        </label>
+        <img id="projPrev" style="display:none;height:60px;border-radius:8px;object-fit:cover;border:1px solid var(--border)">
+        <button class="btn btn-primary" type="submit"><i class="fas fa-plus"></i> Add Project</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Projects List -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-title"><i class="fas fa-code" style="margin-right:.5rem;color:var(--accent)"></i>All Projects</span>
+    <span class="badge badge-accent">{{ projects|length }}</span>
+  </div>
+  {% if projects %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Image</th><th>Title</th><th>Category</th><th>Tech Stack</th><th>Featured</th><th>Links</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for proj in projects %}
+        <tr>
+          <td>{% if proj.image %}<img class="thumb" src="{{ url_for('static', filename=proj.image) }}" alt="">{% else %}<div class="table-img-ph" style="width:60px;height:60px"><i class="fas fa-code"></i></div>{% endif %}</td>
+          <td><strong>{{ proj.title }}</strong></td>
+          <td>{% if proj.category %}<span class="badge badge-blue">{{ proj.category }}</span>{% endif %}</td>
+          <td style="font-size:.8rem;max-width:180px;color:var(--text-muted)">{{ proj.tech_stack or '—' }}</td>
+          <td>{% if proj.featured %}<span class="badge badge-accent"><i class="fas fa-star"></i> Yes</span>{% else %}<span style="color:var(--text-muted);font-size:.85rem">No</span>{% endif %}</td>
+          <td style="white-space:nowrap">
+            {% if proj.github_link %}<a href="{{ proj.github_link }}" target="_blank" class="btn btn-outline btn-sm" style="margin-right:.3rem"><i class="fab fa-github"></i></a>{% endif %}
+            {% if proj.live_link %}<a href="{{ proj.live_link }}" target="_blank" class="btn btn-outline btn-sm"><i class="fas fa-external-link-alt"></i></a>{% endif %}
+          </td>
+          <td style="white-space:nowrap">
+            <a href="{{ url_for('admin_projects_edit', id=proj.id) }}" class="btn btn-outline btn-sm" style="margin-right:.3rem"><i class="fas fa-edit"></i></a>
+            <a href="{{ url_for('admin_projects_delete', id=proj.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this project?')"><i class="fas fa-trash"></i></a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="card-body" style="text-align:center;padding:3rem;color:var(--text-muted)">
+    <i class="fas fa-code" style="font-size:3rem;opacity:.3;margin-bottom:1rem;display:block"></i>
+    <p>No projects yet. Add your first project above.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewImg(input,id){const f=input.files[0];if(f){const r=new FileReader();r.onload=e=>{const p=document.getElementById(id);p.src=e.target.result;p.style.display='block';};r.readAsDataURL(f);}}
+</script>
+{% endblock %}
